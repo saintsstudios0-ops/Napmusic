@@ -1,10 +1,11 @@
+
 {
   "name": "napmusic",
   "version": "1.0.0",
   "private": true,
   "description": "NapMusic - reprodutor de música",
   "scripts": {
-    "build": "mkdir -p www && cp index.html manifest.json icon.svg www/"
+    "build": "node -e \"const fs=require('fs'); fs.mkdirSync('www',{recursive:true}); for(const f of ['index.html','manifest.json','icon.svg']) { if(!fs.existsSync(f)) throw new Error('Arquivo não encontrado: '+f); fs.copyFileSync(f,'www/'+f); }\""
   },
   "dependencies": {
     "@capacitor/android": "^7.4.0",
@@ -13,4 +14,7 @@
   "devDependencies": {
     "@capacitor/cli": "^7.4.0"
   }
+}
+
+
 }
