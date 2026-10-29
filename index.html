@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d1b">
+<title>NapMusic</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080d1b;color:white;font-family:Arial,sans-serif}
+header{padding:24px 18px;background:#101a30;border-bottom:1px solid #243453}
+h1{margin:0;color:#39baff;font-size:30px}
+header p{color:#a9b8d3;margin-bottom:0}
+main{padding:18px;max-width:650px;margin:auto}
+input,button{width:100%;padding:14px;border-radius:12px;font-size:16px}
+input{background:#121d33;color:white;border:1px solid #304363;margin:8px 0 14px}
+button{background:#159ce5;color:white;border:0;font-weight:bold;cursor:pointer;margin:5px 0}
+.secondary{background:#1b2943}
+.song{padding:14px;background:#111c31;border-radius:12px;margin:10px 0;display:flex;align-items:center;gap:12px}
+.song .info{flex:1;min-width:0;overflow-wrap:anywhere}
+.song small{display:block;color:#a9b8d3;margin-top:5px}
+.song button{width:auto;padding:10px}
+#now{padding:15px;background:#101a30;border-radius:14px;margin-top:20px}
+audio{width:100%;margin-top:10px}
+footer{text-align:center;padding:25px;color:#8797b3;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>♫ NapMusic</h1>
+<p>Sua música, seu ritmo.</p>
+</header>
+<main>
+<h2>Sua biblioteca</h2>
+<p>Escolha arquivos de áudio do seu celular para ouvir.</p>
+<input id="search" placeholder="Pesquisar músicas..." />
+<input id="files" type="file" accept="audio/*" multiple />
+<div id="list"></div>
+<section id="now">
+<strong id="title">Nenhuma música selecionada</strong>
+<audio id="player" controls></audio>
+<button class="secondary" id="fav">♡ Adicionar aos favoritos</button>
+</section>
+<h2>Favoritos</h2>
+<div id="favorites"></div>
+</main>
+<footer>NapMusic · Reproduza suas músicas autorizadas</footer>
+<script>
+const files=document.getElementById('files');
+const search=document.getElementById('search');
+const list=document.getElementById('list');
+const favorites=document.getElementById('favorites');
+const player=document.getElementById('player');
+const title=document.getElementById('title');
+let songs=[],current=null;
+const favs=new Set();
+
+function play(song){
+ current=song;
+ player.src=song.url;
+ title.textContent=song.name;
+ player.play().catch(()=>{});
+ document.getElementById('fav').textContent=
+ favs.has(song.name)?'♥ Remover dos favoritos':'♡ Adicionar aos favoritos';
+}
+function render(){
+ list.innerHTML='';
+ const q=search.value.toLowerCase();
+ songs.filter(s=>s.name.toLowerCase().includes(q)).forEach(song=>{
+  const row=document.createElement('div');
+  row.className='song';
+  const info=document.createElement('div');
+  info.className='info';
+  const name=document.createElement('strong');
+  name.textContent='♫ '+song.name;
+  const sub=document.createElement('small');
+  sub.textContent='Arquivo local';
+  info.append(name,sub);
+  const btn=document.createElement('button');
+  btn.textContent='▶';
+  btn.setAttribute('aria-label','Reproduzir '+song.name);
+  btn.onclick=()=>play(song);
+  row.append(info,btn);
+  list.append(row);
+ });
+ favorites.innerHTML='';
+ favs.forEach(name=>{
+  const row=document.createElement('div');
+  row.className='song';
+  const label=document.createElement('span');
+  label.textContent='♥ '+name;
+  row.append(label);
+  favorites.append(row);
+ });
+}
+files.addEventListener('change',()=>{
+ for(const file of files.files){
+  songs.push({name:file.name,url:URL.createObjectURL(file)});
+ }
+ render();
+});
+search.addEventListener('input',render);
+document.getElementById('fav').addEventListener('click',()=>{
+ if(!current)return;
+ if(favs.has(current.name))favs.delete(current.name);
+ else favs.add(current.name);
+ render();
+ document.getElementById('fav').textContent=
+ favs.has(current.name)?'♥ Remover dos favoritos':'♡ Adicionar aos favoritos';
+});
+</script>
+</body>
+</html>
